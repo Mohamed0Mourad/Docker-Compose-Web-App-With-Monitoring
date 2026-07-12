@@ -1,0 +1,12 @@
+This script is a basic resilience and chaos-testing tool for your Docker-based application.
+
+Its purpose is to:
+- check the current status of containers,
+- generate sample traffic to the app,
+- intentionally crash a backend service through the app’s API,
+- force-stop MySQL to see whether it restarts automatically,
+- and show live Docker resource usage.
+
+In other words, it helps you verify whether the system behaves correctly when something fails. That makes it useful for testing availability, recovery, and monitoring behavior.
+
+So the overall idea is: “break things on purpose, then observe what happens.”
