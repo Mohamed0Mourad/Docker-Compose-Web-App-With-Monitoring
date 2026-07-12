@@ -1,0 +1,14 @@
+{
+  "name": "docker-web-task-backend",
+  "version": "1.0.0",
+  "description": "Docker task backend API with MySQL and Prometheus metrics",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.11.0",
+    "prom-client": "^15.1.3"
+  }
+}

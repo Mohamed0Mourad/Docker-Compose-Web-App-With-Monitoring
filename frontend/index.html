@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Docker Web Stack Task</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="card">
+    <p class="badge">Docker Full Web Stack Mosalam.com </p>
+    <h1>Frontend + Backend + MySQL + Proxy + Monitoring</h1>
+    <p class="muted">This frontend is served by Nginx and talks to the API through the proxy path <code>/api</code>.</p>
+
+    <section class="panel">
+      <h2>Add item</h2>
+      <form id="todo-form">
+        <input id="title" placeholder="Write a task, e.g. test docker healthcheck" autocomplete="off">
+        <button>Add</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Data from API</h2>
+      <button id="refresh">Refresh</button>
+      <pre id="output">Loading...</pre>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

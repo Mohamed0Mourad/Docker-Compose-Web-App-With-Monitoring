@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: Docker Web Task Dashboards
+    orgId: 1
+    folder: Docker Web Task
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
