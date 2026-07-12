@@ -1,0 +1,72 @@
+This file is the Nginx configuration for the reverse proxy layer of your Docker stack. It defines how incoming web traffic is routed to the correct internal services such as the frontend and backend containers.
+
+1. Upstream blocks
+- upstream frontend_upstream { ... }
+  - This creates a named group for the frontend service.
+  - It points to frontend:80, meaning Nginx will forward browser requests to the frontend container on port 80.
+
+- upstream backend_upstream { ... }
+  - This creates a named group for the backend API services.
+  - least_conn tells Nginx to send requests to the backend instance with the fewest active connections.
+  - It includes:
+    - server backend-a:3000 max_fails=3 fail_timeout=10s;
+    - server backend-b:3000 max_fails=3 fail_timeout=10s;
+  - This means requests to /api/ are load-balanced across two backend containers, backend-a and backend-b.
+  - If one backend becomes unavailable, Nginx will retry the other one after a short timeout.
+
+2. Server block
+- server { listen 80; server_name _; ... }
+  - This defines a web server that listens on port 80 for all incoming requests.
+  - server_name _ means it accepts requests for any host name.
+
+3. Logging
+- access_log /var/log/nginx/access.log;
+- error_log /var/log/nginx/error.log warn;
+  - These set up request logging and error logging.
+  - They help with debugging and monitoring traffic.
+
+4. Health check route
+- location = /healthz { ... }
+  - This handles exactly the path /healthz.
+  - It disables access logging for this request.
+  - It returns a plain text response:
+    return 200 "proxy healthy\n";
+  - This is commonly used by Docker, load balancers, or monitoring tools to check whether the proxy is alive.
+
+5. API path redirect
+- location = /api { return 308 /api/; }
+  - If a user requests /api without a trailing slash, Nginx redirects them to /api/.
+  - The 308 status code means permanent redirect, preserving the request method.
+
+6. API proxying
+- location /api/ { ... }
+  - This catches all requests under /api/.
+  - proxy_pass http://backend_upstream/;
+    - Sends those requests to the backend_upstream group.
+    - The trailing slash matters because it preserves the path structure.
+  - Several proxy headers are set:
+    - Host $host
+    - X-Real-IP $remote_addr
+    - X-Forwarded-For $proxy_add_x_forwarded_for
+    - X-Forwarded-Proto $scheme
+  - These headers help the backend know the original client request details.
+  - Timeout settings:
+    - proxy_connect_timeout 3s
+    - proxy_send_timeout 30s
+    - proxy_read_timeout 30s
+  - These limit how long Nginx waits for backend connections and responses.
+
+7. Frontend proxying
+- location / { ... }
+  - This is the default catch-all location for all other requests.
+  - It forwards them to the frontend_upstream service.
+  - So when a user opens the site normally, Nginx passes the request to the frontend container.
+
+Overall purpose
+- Nginx acts as a single entry point for the application.
+- It separates frontend and backend traffic.
+- It provides health checks.
+- It balances API traffic across multiple backend servers.
+- It forwards requests to the correct internal Docker services.
+
+In short, this file is the traffic manager for your stack. It decides where each request should go and ensures the app is reachable through one port.
