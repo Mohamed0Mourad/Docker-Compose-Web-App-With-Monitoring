@@ -1,7 +1,7 @@
 services:
   frontend:
     build:
-      context: ./frontend
+      context: ../frontend
     container_name: task_frontend
     networks:
       - frontend_net
@@ -26,7 +26,7 @@ services:
 
   backend-a:
     build:
-      context: ./backend
+      context: ../backend
     container_name: task_backend_a
     env_file: .env
     environment:
@@ -61,7 +61,7 @@ services:
 
   backend-b:
     build:
-      context: ./backend
+      context: ../backend
     container_name: task_backend_b
     env_file: .env
     environment:
