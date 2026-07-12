@@ -1,0 +1,23 @@
+The monitoring directory is for observability and performance monitoring of the Docker stack.
+
+It contains two main parts:
+
+- monitoring/prometheus/
+  - Holds Prometheus configuration, especially prometheus.yml.
+  - Prometheus collects metrics from services such as:
+    - the backend API
+    - cAdvisor (container metrics)
+    - MySQL exporter
+    - itself
+
+- monitoring/grafana/
+  - Holds Grafana configuration and dashboard provisioning.
+  - prometheus.yml connects Grafana to Prometheus as a data source.
+  - dashboard.yml tells Grafana to load dashboards automatically.
+  - The dashboards themselves are under dashboards.
+
+In simple terms:
+- Prometheus collects metrics
+- Grafana visualizes them in dashboards
+
+So this directory is what makes your stack “monitorable” and gives you a dashboard view of health and performance.
