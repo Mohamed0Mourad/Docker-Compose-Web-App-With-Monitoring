@@ -1,0 +1,95 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: task_frontend
+    networks:
+      - frontend_net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://127.0.0.1/healthz | grep -qx 'frontend healthy'
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    cpus: "0.25"
+    mem_limit: 96m
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  backend-a:
+    build:
+      context: ./backend
+    container_name: task_backend_a
+    env_file: .env
+    environment:
+      APP_INSTANCE: backend-a
+      DB_HOST: mysql
+      DB_PORT: 3306
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - backend_net
+      - db_net
+      - monitoring_net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://127.0.0.1:3000/health | grep -q '"status":"ok"'
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    restart: on-failure:5
+    cpus: "0.50"
+    mem_limit: 256m
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  backend-b:
+    build:
+      context: ./backend
+    container_name: task_backend_b
+    env_file: .env
+    environment:
+      APP_INSTANCE: backend-b
+      DB_HOST: mysql
+      DB_PORT: 3306
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - backend_net
+      - db_net
+      - monitoring_net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://127.0.0.1:3000/health | grep -q '"status":"ok"'
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    restart: on-failure:5
+    cpus: "0.50"
+    mem_limit: 256m
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

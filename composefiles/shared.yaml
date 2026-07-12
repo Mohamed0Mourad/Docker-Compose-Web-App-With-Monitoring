@@ -1,0 +1,15 @@
+networks:
+  frontend_net:
+    name: task_frontend_net
+  backend_net:
+    name: task_backend_net
+  db_net:
+    name: task_db_net
+    internal: true
+  monitoring_net:
+    name: task_monitoring_net
+
+volumes:
+  mysql_data:
+  prometheus_data:
+  grafana_data:

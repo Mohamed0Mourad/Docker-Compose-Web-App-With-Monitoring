@@ -1,0 +1,70 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: task_mysql
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - db_net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h 127.0.0.1 -uroot --password="$${MYSQL_ROOT_PASSWORD}" --silent
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 35s
+    restart: unless-stopped
+    cpus: "0.80"
+    mem_limit: 768m
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  mysqld-exporter:
+    image: prom/mysqld-exporter:v0.19.0
+    container_name: task_mysqld_exporter
+    env_file: .env
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: ${MYSQL_EXPORTER_PASSWORD}
+    command:
+      - "--mysqld.address=mysql:3306"
+      - "--mysqld.username=${MYSQL_EXPORTER_USER}"
+      - "--collect.info_schema.processlist"
+      - "--collect.global_status"
+      - "--collect.global_variables"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - db_net
+      - monitoring_net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://127.0.0.1:9104/metrics | grep -q '^mysql_up 1$'
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    cpus: "0.20"
+    mem_limit: 96m
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
